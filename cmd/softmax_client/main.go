@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net"
 
+	"github.com/pojntfx/tinynet/pkg/tinynet"
 	"github.com/valyala/fastjson"
 )
 
@@ -41,10 +41,10 @@ func main() {
 	var jsonSoftmaxInput [512]byte
 	var JSONArena fastjson.Arena
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:3333")
+	tcpAddr, err := tinynet.ResolveTCPAddr("tcp", "127.0.0.1:1234")
 	checkError(err)
 
-	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+	conn, err := tinynet.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
 
 	_, err = conn.Write([]byte(`Connected`))

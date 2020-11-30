@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pojntfx/webassembly-berkeley-sockets-via-webrtc/examples/go/pkg/tinynet"
+	"github.com/pojntfx/tinynet/pkg/tinynet"
 )
 
 var (
-	LADDR  = "10.0.0.240:1234"
+	LADDR  = "127.0.0.1:1234"
 	BUFLEN = 1024
 )
 

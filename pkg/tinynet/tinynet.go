@@ -8,7 +8,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/pojntfx/webassembly-berkeley-sockets-via-webrtc/examples/go/pkg/sockets"
+	"github.com/pojntfx/unisockets/pkg/unisockets"
 )
 
 type IP []byte
@@ -80,27 +80,27 @@ func Listen(network, address string) (Listener, error) {
 
 func ListenTCP(network string, laddr *TCPAddr) (*TCPListener, error) {
 	// Create address
-	serverAddress := sockets.SockaddrIn{
-		SinFamily: sockets.PF_INET,
-		SinPort:   sockets.Htons(uint16(laddr.Port)),
+	serverAddress := unisockets.SockaddrIn{
+		SinFamily: unisockets.PF_INET,
+		SinPort:   unisockets.Htons(uint16(laddr.Port)),
 		SinAddr: struct{ SAddr uint32 }{
 			SAddr: binary.LittleEndian.Uint32(laddr.IP),
 		},
 	}
 
 	// Create socket
-	serverSocket, err := sockets.Socket(sockets.PF_INET, sockets.SOCK_STREAM, 0)
+	serverSocket, err := unisockets.Socket(unisockets.PF_INET, unisockets.SOCK_STREAM, 0)
 	if err != nil {
 		return nil, err
 	}
 
 	// Bind
-	if err := sockets.Bind(serverSocket, &serverAddress); err != nil {
+	if err := unisockets.Bind(serverSocket, &serverAddress); err != nil {
 		return nil, err
 	}
 
 	// Listen
-	if err := sockets.Listen(serverSocket, 5); err != nil {
+	if err := unisockets.Listen(serverSocket, 5); err != nil {
 		return nil, err
 	}
 
@@ -116,7 +116,7 @@ type TCPListener struct {
 }
 
 func (t TCPListener) Close() error {
-	return sockets.Shutdown(t.fd, sockets.SHUT_RDWR)
+	return unisockets.Shutdown(t.fd, unisockets.SHUT_RDWR)
 }
 
 func (t TCPListener) Addr() Addr {
@@ -130,10 +130,10 @@ func (l TCPListener) Accept() (Conn, error) {
 }
 
 func (l *TCPListener) AcceptTCP() (*TCPConn, error) {
-	clientAddress := sockets.SockaddrIn{}
+	clientAddress := unisockets.SockaddrIn{}
 
 	// Accept
-	clientSocket, err := sockets.Accept(l.fd, &clientAddress)
+	clientSocket, err := unisockets.Accept(l.fd, &clientAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -159,22 +159,22 @@ func Dial(network, address string) (Conn, error) {
 
 func DialTCP(network string, laddr, raddr *TCPAddr) (*TCPConn, error) {
 	// Create address
-	serverAddress := sockets.SockaddrIn{
-		SinFamily: sockets.PF_INET,
-		SinPort:   sockets.Htons(uint16(raddr.Port)),
+	serverAddress := unisockets.SockaddrIn{
+		SinFamily: unisockets.PF_INET,
+		SinPort:   unisockets.Htons(uint16(raddr.Port)),
 		SinAddr: struct{ SAddr uint32 }{
 			SAddr: binary.LittleEndian.Uint32(raddr.IP),
 		},
 	}
 
 	// Create socket
-	serverSocket, err := sockets.Socket(sockets.PF_INET, sockets.SOCK_STREAM, 0)
+	serverSocket, err := unisockets.Socket(unisockets.PF_INET, unisockets.SOCK_STREAM, 0)
 	if err != nil {
 		return nil, err
 	}
 
 	// Connect
-	if err := sockets.Connect(serverSocket, &serverAddress); err != nil {
+	if err := unisockets.Connect(serverSocket, &serverAddress); err != nil {
 		return nil, err
 	}
 
@@ -213,7 +213,7 @@ type TCPConn struct {
 func (c TCPConn) Read(b []byte) (int, error) {
 	readMsg := make([]byte, unsafe.Sizeof(b))
 
-	n, err := sockets.Recv(c.fd, &readMsg, uint32(len(b)), 0)
+	n, err := unisockets.Recv(c.fd, &readMsg, uint32(len(b)), 0)
 	if n == 0 {
 		return int(n), errors.New("client disconnected")
 	}
@@ -224,7 +224,7 @@ func (c TCPConn) Read(b []byte) (int, error) {
 }
 
 func (c TCPConn) Write(b []byte) (int, error) {
-	n, err := sockets.Send(c.fd, b, 0)
+	n, err := unisockets.Send(c.fd, b, 0)
 	if n == 0 {
 		return int(n), errors.New("client disconnected")
 	}
@@ -233,7 +233,7 @@ func (c TCPConn) Write(b []byte) (int, error) {
 }
 
 func (c TCPConn) Close() error {
-	return sockets.Shutdown(c.fd, sockets.SHUT_RDWR)
+	return unisockets.Shutdown(c.fd, unisockets.SHUT_RDWR)
 }
 
 func (c TCPConn) LocalAddr() Addr {

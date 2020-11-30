@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net"
 	"os"
 	"sync"
 
+	"github.com/pojntfx/tinynet/pkg/tinynet"
 	"github.com/valyala/fastjson"
 )
 
@@ -50,10 +50,10 @@ type Softmax struct {
 
 func main() {
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:3333")
+	tcpAddr, err := tinynet.ResolveTCPAddr("tcp", "127.0.0.1:1234")
 	checkError(err)
 
-	ln, err := net.ListenTCP("tcp", tcpAddr)
+	ln, err := tinynet.ListenTCP("tcp", tcpAddr)
 	checkError(err)
 
 	inputArray := []float64{1, 1, 3}
@@ -75,7 +75,7 @@ func main() {
 		wgSum.Add(1)
 		wgSoftmax.Add(1)
 
-		go handleConnection(conn.(*net.TCPConn), &wgSum, &wgSoftmax, id, &data, &wgStart, &wgStart2)
+		go handleConnection(conn.(*tinynet.TCPConn), &wgSum, &wgSoftmax, id, &data, &wgStart, &wgStart2)
 
 		id++
 		data.ionCount++
@@ -111,7 +111,7 @@ func manager(wgSum *sync.WaitGroup, wgSoftmax *sync.WaitGroup, data *Softmax, wg
 
 }
 
-func handleConnection(conn *net.TCPConn, wgSum *sync.WaitGroup, wgSoftmax *sync.WaitGroup, id int, data *Softmax, wgStart *sync.WaitGroup, wgStart2 *sync.WaitGroup) {
+func handleConnection(conn *tinynet.TCPConn, wgSum *sync.WaitGroup, wgSoftmax *sync.WaitGroup, id int, data *Softmax, wgStart *sync.WaitGroup, wgStart2 *sync.WaitGroup) {
 	var input [512]byte
 	var JSONArena fastjson.Arena
 
