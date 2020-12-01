@@ -1,0 +1,17 @@
+name: Mirror
+
+on: [push]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+      - uses: spyoungtech/mirror-action@master
+        with:
+          REMOTE: "https://gitlab.mi.hdm-stuttgart.de/fp036/tinynet.git"
+          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
