@@ -16,10 +16,10 @@ func main() {
 	interval := flag.Int("i", 0, "set interval between periodic bandwidth, jitter, ans loss reports")                                          // Easy
 	verbose := flag.Bool("V", false, "give more detailed output")                                                                              // Easy
 	server := flag.Bool("s", false, "run in server mode")                                                                                      // Done
-	client := flag.Bool("c", false, "run in client mode")                                                                                      // we are client and server echoes back
+	client := flag.Bool("c", false, "run in client mode")                                                                                      // Done
 	duration := flag.Int("t", 10, "time in seconds to transmit for")                                                                           // Done
 	length := flag.Int("l", 128, "length of buffers to read or write (in KB)")                                                                 // Easy
-	parallel := flag.Int("P", 1, "number of simultaneous connections to make to the server")                                                   // * needs to be done in a different way, we need concurrent clients
+	parallel := flag.Int("P", 1, "number of simultaneous connections to make to the server")                                                   // Make concurrent client requests
 
 	flag.Parse()
 
@@ -141,7 +141,6 @@ func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int) {
 
 	var input [512]byte
 	var i int
-	// hier dann wieder irgendwo for loop
 	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
 
