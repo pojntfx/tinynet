@@ -4,19 +4,18 @@ import (
 	"flag"
 	"fmt"
 	"log"
-
-	"github.com/pojntfx/tinynet/pkg/tinynet"
+	"net"
+	"sync"
 )
 
 func main() {
 
-	port := flag.String("p", "3333", "port to listen to")
+	port := flag.String("p", "8888", "port to listen to")
 	format := flag.String("f", "M", "specify the format of bandwidth numbers. (k = Kbits/sec, K = KBytes/sec, m = Mbits/sec, M = MBytes/sec)")
 	interval := flag.Int("i", 0, "set interval between periodic bandwidth, jitter, ans loss reports")
 	verbose := flag.Bool("V", false, "give more detailed output")
 	server := flag.Bool("s", false, "run in server mode")
-	//client := flag.Bool("c", false, "run in client mode")
-	time := flag.Int("t", 10, "time in seconds to transmit for")
+	times := flag.Int("t", 10, "time in seconds to transmit for")
 	length := flag.Int("l", 128, "length of buffers to read or write (in KB)")
 	parallel := flag.Int("P", 1, "number of simultaneous connections to make to the server")
 	reverse := flag.Bool("R", false, "run in reverse mode (server sends, client receives)")
@@ -28,42 +27,70 @@ func main() {
 	fmt.Println("interval:", *interval)
 	fmt.Println("verbose:", *verbose)
 	fmt.Println("server:", *server)
-	//	fmt.Println("client:", *client)
-	fmt.Println("time:", *time)
+	fmt.Println("time:", *times)
 	fmt.Println("length:", *length)
 	fmt.Println("parallel:", *parallel)
 	fmt.Println("reverse:", *reverse)
 
+	var wg sync.WaitGroup
+	var wgServer sync.WaitGroup
+
+	wgServer.Add(1)
+
+	go tcpServer(port, &wg, &wgServer)
+	tcpClient(port, &wg, &wgServer)
 }
 
-func tcpServer(port *string) {
+func tcpServer(port *string, wg *sync.WaitGroup, wgServer *sync.WaitGroup) {
 
-	tcpAddr, err := tinynet.ResolveTCPAddr("tcp", fmt.Sprintf("127.0.0.1:%v", *port))
+	fmt.Println(*port)
+
+	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
 	checkError(err)
 
-	ln, err := tinynet.ListenTCP("tcp", tcpAddr)
+	ln, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err)
+
+	wgServer.Done()
+	wg.Add(1)
 
 	for {
 		conn, err := ln.Accept()
 		checkError(err)
 
-		go handleConnection(conn.(*tinynet.TCPConn))
+		wg.Done()
+		go handleConnection(conn, wg)
 	}
+
 }
 
-func handleConnection(conn *tinynet.TCPConn) {
-	var input []byte
+func handleConnection(conn net.Conn, wg *sync.WaitGroup) {
 
 	_, err := conn.Write([]byte("Hello World!"))
 	checkError(err)
+	fmt.Println("handling Connection...")
+}
+
+func tcpClient(port *string, wg *sync.WaitGroup, wgServer *sync.WaitGroup) {
+	var input [512]byte
+
+	wgServer.Wait()
+
+	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
+	checkError(err)
+	fmt.Println("TCP address resolved")
+
+	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+	checkError(err)
+	fmt.Println("TCP address dialed")
+
+	wg.Wait()
 
 	n, err := conn.Read(input[0:])
 	checkError(err)
+	fmt.Println("Read from server...")
 
-	echo := string(input[0:n])
-
-	fmt.Println(echo)
+	fmt.Println(string(input[0:n]))
 }
 
 func checkError(err error) {
