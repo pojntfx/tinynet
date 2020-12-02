@@ -42,8 +42,6 @@ func main() {
 
 func tcpServer(port *string, wg *sync.WaitGroup) {
 
-	fmt.Println(*port)
-
 	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
 	checkError(err)
 
@@ -65,7 +63,6 @@ func handleConnection(conn net.Conn) {
 
 	_, err := conn.Write([]byte("Hello World!"))
 	checkError(err)
-	fmt.Println("handling Connection...")
 }
 
 func tcpClient(port *string, wg *sync.WaitGroup) {
@@ -75,11 +72,9 @@ func tcpClient(port *string, wg *sync.WaitGroup) {
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
 	checkError(err)
-	fmt.Println("TCP address resolved")
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
-	fmt.Println("TCP address dialed")
 
 	n, err := conn.Read(input[0:])
 	checkError(err)
