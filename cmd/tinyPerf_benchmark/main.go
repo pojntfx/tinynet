@@ -50,7 +50,7 @@ func main() {
 		wg.Add(1)
 		wgFin.Add(*parallel)
 
-		go tcpServerClient(port, duration, &wg, &wgParallel)
+		go tcpServerClient(port, &wg, &wgParallel)
 
 		for i := 0; i < *parallel; i++ {
 			go tcpClientClient(port, &wg, duration, &wgParallel, &wgFin)
@@ -121,7 +121,7 @@ func tcpClient(port *string, wg *sync.WaitGroup) {
 
 }
 
-func tcpServerClient(port *string, duration *int, wg *sync.WaitGroup, wgParallel *sync.WaitGroup) {
+func tcpServerClient(port *string, wg *sync.WaitGroup, wgParallel *sync.WaitGroup) {
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("127.0.0.1:%v", *port))
 	checkError(err)
