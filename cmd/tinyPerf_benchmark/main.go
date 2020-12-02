@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -65,11 +66,14 @@ func tcpServer(port *string, wg *sync.WaitGroup) {
 func handleConnection(conn net.Conn) {
 	var input [512]byte
 
+	start := time.Now()
 	_, err := conn.Write([]byte("Hello World!"))
 	checkError(err)
 
 	n, err := conn.Read(input[0:])
 	checkError(err)
+	elapsed := time.Since(start)
+	log.Printf("[INFO] Process time: %s", elapsed)
 
 	fmt.Println(string(input[0:n]))
 }
