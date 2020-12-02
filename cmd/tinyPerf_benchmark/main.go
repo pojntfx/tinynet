@@ -66,16 +66,19 @@ func tcpServer(port *string, wg *sync.WaitGroup) {
 func handleConnection(conn net.Conn) {
 	var input [512]byte
 
-	start := time.Now()
-	_, err := conn.Write([]byte("Hello World!"))
-	checkError(err)
+	var i int
+	for start := time.Now(); time.Since(start) < time.Second*10; {
+		i++
+		start := time.Now()
+		_, err := conn.Write([]byte("Hello World!"))
+		checkError(err)
 
-	n, err := conn.Read(input[0:])
-	checkError(err)
-	elapsed := time.Since(start)
-	log.Printf("[INFO] Process time: %s", elapsed)
+		_, err = conn.Read(input[0:])
+		checkError(err)
+		elapsed := time.Since(start)
+		log.Printf("[INFO] Process time: %s", elapsed)
+	}
 
-	fmt.Println(string(input[0:n]))
 }
 
 func tcpClient(port *string, wg *sync.WaitGroup) {
@@ -89,11 +92,14 @@ func tcpClient(port *string, wg *sync.WaitGroup) {
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
 
-	n, err := conn.Read(input[0:])
-	checkError(err)
+	for {
+		n, err := conn.Read(input[0:])
+		checkError(err)
 
-	_, err = conn.Write(input[0:n])
-	checkError(err)
+		_, err = conn.Write(input[0:n])
+		checkError(err)
+	}
+
 }
 
 func checkError(err error) {
