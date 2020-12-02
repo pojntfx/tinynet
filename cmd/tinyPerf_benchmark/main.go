@@ -48,7 +48,7 @@ func main() {
 		wg.Add(1)
 
 		go tcpServerClient(port, duration, &wg)
-		tcpClientClient(port, &wg)
+		tcpClientClient(port, &wg, duration)
 	}
 
 }
@@ -77,13 +77,13 @@ func handleConnection(conn net.Conn, duration *int) {
 	var i int
 	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
-		start := time.Now()
+		startTimer := time.Now()
 		_, err := conn.Write([]byte("Hello World!"))
 		checkError(err)
 
 		_, err = conn.Read(input[0:])
 		checkError(err)
-		elapsed := time.Since(start)
+		elapsed := time.Since(startTimer)
 		// Append time to array instead of printing it
 		log.Printf("[INFO] Process time: %s", elapsed)
 	}
@@ -125,11 +125,11 @@ func tcpServerClient(port *string, duration *int, wg *sync.WaitGroup) {
 		conn, err := ln.Accept()
 		checkError(err)
 
-		go handleConnection(conn, duration)
+		go handleConnectionClient(conn)
 	}
 }
 
-func tcpClientClient(port *string, wg *sync.WaitGroup) {
+func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int) {
 
 	wg.Wait()
 
@@ -140,26 +140,37 @@ func tcpClientClient(port *string, wg *sync.WaitGroup) {
 	checkError(err)
 
 	var input [512]byte
-
+	var i int
 	// hier dann wieder irgendwo for loop
-	_, err = conn.Write([]byte("Hello World!"))
-	checkError(err)
+	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
+		i++
 
-	n, err := conn.Read(input[0:])
-	checkError(err)
+		startTimer := time.Now()
+		_, err = conn.Write([]byte("Hello World!"))
+		checkError(err)
 
-	fmt.Println(string(input[0:n]))
+		_, err := conn.Read(input[0:])
+		checkError(err)
+
+		elapsed := time.Since(startTimer)
+		// Append time to array instead of printing it
+		log.Printf("[INFO] Process time: %s", elapsed)
+	}
 }
 
 func handleConnectionClient(conn net.Conn) {
 
 	var input [512]byte
 
-	n, err := conn.Read(input[0:])
-	checkError(err)
+	for {
+		n, err := conn.Read(input[0:])
+		checkError(err)
 
-	_, err = conn.Write(input[0:n])
-	checkError(err)
+		_, err = conn.Write(input[0:n])
+		checkError(err)
+
+	}
+
 }
 
 func checkError(err error) {
