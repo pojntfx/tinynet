@@ -33,15 +33,14 @@ func main() {
 	fmt.Println("reverse:", *reverse)
 
 	var wg sync.WaitGroup
-	var wgServer sync.WaitGroup
 
-	wgServer.Add(1)
+	wg.Add(1)
 
-	go tcpServer(port, &wg, &wgServer)
-	tcpClient(port, &wg, &wgServer)
+	go tcpServer(port, &wg)
+	tcpClient(port, &wg)
 }
 
-func tcpServer(port *string, wg *sync.WaitGroup, wgServer *sync.WaitGroup) {
+func tcpServer(port *string, wg *sync.WaitGroup) {
 
 	fmt.Println(*port)
 
@@ -51,30 +50,28 @@ func tcpServer(port *string, wg *sync.WaitGroup, wgServer *sync.WaitGroup) {
 	ln, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err)
 
-	wgServer.Done()
-	wg.Add(1)
+	wg.Done()
 
 	for {
 		conn, err := ln.Accept()
 		checkError(err)
 
-		wg.Done()
-		go handleConnection(conn, wg)
+		go handleConnection(conn)
 	}
 
 }
 
-func handleConnection(conn net.Conn, wg *sync.WaitGroup) {
+func handleConnection(conn net.Conn) {
 
 	_, err := conn.Write([]byte("Hello World!"))
 	checkError(err)
 	fmt.Println("handling Connection...")
 }
 
-func tcpClient(port *string, wg *sync.WaitGroup, wgServer *sync.WaitGroup) {
+func tcpClient(port *string, wg *sync.WaitGroup) {
 	var input [512]byte
 
-	wgServer.Wait()
+	wg.Wait()
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
 	checkError(err)
@@ -83,8 +80,6 @@ func tcpClient(port *string, wg *sync.WaitGroup, wgServer *sync.WaitGroup) {
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
 	fmt.Println("TCP address dialed")
-
-	wg.Wait()
 
 	n, err := conn.Read(input[0:])
 	checkError(err)
