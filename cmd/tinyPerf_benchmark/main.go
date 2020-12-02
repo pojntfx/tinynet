@@ -44,11 +44,21 @@ func main() {
 
 	if *client {
 		var wg sync.WaitGroup
+		var wgParallel sync.WaitGroup
+		var wgFin sync.WaitGroup
 
 		wg.Add(1)
+		wgFin.Add(*parallel)
 
-		go tcpServerClient(port, duration, &wg)
-		tcpClientClient(port, &wg, duration)
+		go tcpServerClient(port, duration, &wg, &wgParallel)
+
+		for i := 0; i < *parallel; i++ {
+			go tcpClientClient(port, &wg, duration, &wgParallel, &wgFin)
+			wgParallel.Add(1)
+		}
+
+		wgFin.Wait()
+
 	}
 
 }
@@ -111,7 +121,7 @@ func tcpClient(port *string, wg *sync.WaitGroup) {
 
 }
 
-func tcpServerClient(port *string, duration *int, wg *sync.WaitGroup) {
+func tcpServerClient(port *string, duration *int, wg *sync.WaitGroup, wgParallel *sync.WaitGroup) {
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("127.0.0.1:%v", *port))
 	checkError(err)
@@ -129,7 +139,9 @@ func tcpServerClient(port *string, duration *int, wg *sync.WaitGroup) {
 	}
 }
 
-func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int) {
+func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int, wgParallel *sync.WaitGroup, wgFin *sync.WaitGroup) {
+	var input [512]byte
+	var i int
 
 	wg.Wait()
 
@@ -139,8 +151,8 @@ func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int) {
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
 
-	var input [512]byte
-	var i int
+	wgParallel.Done()
+	wgParallel.Wait()
 	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
 
@@ -155,6 +167,8 @@ func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int) {
 		// Append time to array instead of printing it
 		log.Printf("[INFO] Process time: %s", elapsed)
 	}
+
+	wgFin.Done()
 }
 
 func handleConnectionClient(conn net.Conn) {
