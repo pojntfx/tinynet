@@ -9,17 +9,21 @@ import (
 	"time"
 )
 
+var (
+	elapsed time.Duration
+)
+
 func main() {
 
 	port := flag.String("p", "8888", "port to listen to")                                                                                      // Done
-	format := flag.String("f", "M", "specify the format of bandwidth numbers. (k = Kbits/sec, K = KBytes/sec, m = Mbits/sec, M = MBytes/sec)") // Easy
-	interval := flag.Int("i", 0, "set interval between periodic bandwidth, jitter, ans loss reports")                                          // Easy
-	verbose := flag.Bool("V", false, "give more detailed output")                                                                              // Easy
+	format := flag.String("f", "M", "specify the format of bandwidth numbers. (k = Kbits/sec, K = KBytes/sec, m = Mbits/sec, M = MBytes/sec)") // Easy 2)
+	interval := flag.Int("i", 0, "set interval between periodic bandwidth, jitter, ans loss reports")                                          // Easy 1)
+	verbose := flag.Bool("V", false, "give more detailed output")                                                                              // Easy 4)
 	server := flag.Bool("s", false, "run in server mode")                                                                                      // Done
 	client := flag.Bool("c", false, "run in client mode")                                                                                      // Done
 	duration := flag.Int("t", 10, "time in seconds to transmit for")                                                                           // Done
-	length := flag.Int("l", 128, "length of buffers to read or write (in KB)")                                                                 // Easy
-	parallel := flag.Int("P", 1, "number of simultaneous connections to make to the server")                                                   // Make concurrent client requests
+	length := flag.Int("l", 128, "length of buffers to read or write (in KB)")                                                                 // Easy 3)
+	parallel := flag.Int("P", 1, "number of simultaneous connections to make to the server")                                                   // Done
 
 	flag.Parse()
 
@@ -85,6 +89,8 @@ func tcpServer(port *string, wg *sync.WaitGroup, duration *int) {
 func handleConnection(conn net.Conn, duration *int) {
 	var input [512]byte
 	var i int
+
+	go doEvery(time.Second)
 	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
 		startTimer := time.Now()
@@ -93,9 +99,10 @@ func handleConnection(conn net.Conn, duration *int) {
 
 		_, err = conn.Read(input[0:])
 		checkError(err)
-		elapsed := time.Since(startTimer)
+		elapsed = time.Since(startTimer)
 		// Append time to array instead of printing it
-		log.Printf("[INFO] Process time: %s", elapsed)
+		//log.Printf("[INFO] Process time: %s", elapsed)
+
 	}
 
 }
@@ -153,6 +160,8 @@ func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int, wgParallel
 
 	wgParallel.Done()
 	wgParallel.Wait()
+
+	go doEvery(time.Second)
 	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
 
@@ -163,12 +172,20 @@ func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int, wgParallel
 		_, err := conn.Read(input[0:])
 		checkError(err)
 
-		elapsed := time.Since(startTimer)
+		elapsed = time.Since(startTimer)
 		// Append time to array instead of printing it
-		log.Printf("[INFO] Process time: %s", elapsed)
+		//log.Printf("[INFO] Process time: %s", elapsed)
+
 	}
 
 	wgFin.Done()
+}
+
+func doEvery(d time.Duration) {
+	for x := range time.Tick(d) {
+		fmt.Println(elapsed)
+		_ = x
+	}
 }
 
 func handleConnectionClient(conn net.Conn) {
