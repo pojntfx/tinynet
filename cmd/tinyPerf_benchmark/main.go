@@ -10,14 +10,15 @@ import (
 )
 
 var (
-	elapsed time.Duration
+	elapsed  time.Duration
+	interval *int
 )
 
 func main() {
 
 	port := flag.String("p", "8888", "port to listen to")                                                                                      // Done
 	format := flag.String("f", "M", "specify the format of bandwidth numbers. (k = Kbits/sec, K = KBytes/sec, m = Mbits/sec, M = MBytes/sec)") // Easy 2)
-	interval := flag.Int("i", 0, "set interval between periodic bandwidth, jitter, ans loss reports")                                          // Easy 1)
+	interval = flag.Int("i", 1, "set interval between periodic bandwidth, jitter, ans loss reports")                                           // Easy 1)
 	verbose := flag.Bool("V", false, "give more detailed output")                                                                              // Easy 4)
 	server := flag.Bool("s", false, "run in server mode")                                                                                      // Done
 	client := flag.Bool("c", false, "run in client mode")                                                                                      // Done
@@ -90,7 +91,7 @@ func handleConnection(conn net.Conn, duration *int) {
 	var input [512]byte
 	var i int
 
-	go doEvery(time.Second)
+	go doEvery((time.Duration(*interval) * time.Second))
 	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
 		startTimer := time.Now()
@@ -161,7 +162,7 @@ func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int, wgParallel
 	wgParallel.Done()
 	wgParallel.Wait()
 
-	go doEvery(time.Second)
+	go doEvery((time.Duration(*interval) * time.Second))
 	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
 
