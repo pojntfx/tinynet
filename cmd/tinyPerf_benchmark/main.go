@@ -41,12 +41,12 @@ func main() {
 	wg.Add(1)
 
 	go tcpClient(port, &wg)
-	tcpServer(port, &wg)
+	tcpServer(port, &wg, time)
 }
 
-func tcpServer(port *string, wg *sync.WaitGroup) {
+func tcpServer(port *string, wg *sync.WaitGroup, duration *int) {
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
+	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("127.0.0.1:%v", *port))
 	checkError(err)
 
 	ln, err := net.ListenTCP("tcp", tcpAddr)
@@ -58,16 +58,15 @@ func tcpServer(port *string, wg *sync.WaitGroup) {
 		conn, err := ln.Accept()
 		checkError(err)
 
-		go handleConnection(conn)
+		go handleConnection(conn, duration)
 	}
 
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, duration *int) {
 	var input [512]byte
-
 	var i int
-	for start := time.Now(); time.Since(start) < time.Second*10; {
+	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
 		start := time.Now()
 		_, err := conn.Write([]byte("Hello World!"))
@@ -86,7 +85,7 @@ func tcpClient(port *string, wg *sync.WaitGroup) {
 
 	wg.Wait()
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
+	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("127.0.0.1:%v", *port))
 	checkError(err)
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
