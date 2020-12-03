@@ -27,12 +27,12 @@ func main() {
 	client := flag.Bool("c", false, "run in client mode")
 	reverse := flag.Bool("r", false, "run in reverse mode")                                  // Done
 	duration := flag.Int("t", 10, "time in seconds to transmit for")                         // Done
-	length := flag.Int("l", 128, "length of buffers to read or write (in KB)")               // Done
+	length := flag.Int("l", 1024, "length of buffers to read or write (in KB)")              // Done
 	parallel := flag.Int("P", 1, "number of simultaneous connections to make to the server") // Done
 
 	flag.Parse()
 
-	*length = *length * 1000
+	*length = *length * 1
 
 	fmt.Println("port:", *port)
 	fmt.Println("interval:", *interval)
@@ -46,11 +46,16 @@ func main() {
 
 	if *server {
 		var wg sync.WaitGroup
+		var wgFin sync.WaitGroup
 
+		wgFin.Add(*parallel)
 		wg.Add(1)
 
 		go tcpClient(port, &wg, length)
-		tcpServer(port, &wg, duration, length)
+		go tcpServer(port, &wg, duration, length, &wgFin)
+
+		wgFin.Wait()
+		fmt.Println(fmt.Sprintf("result: %v", len(result)))
 	}
 
 	if *reverse {
@@ -74,23 +79,12 @@ func main() {
 	}
 
 	if *client {
-		var wgParallel sync.WaitGroup
-		var wgFin sync.WaitGroup
-
-		wgFin.Add(*parallel)
-
-		for i := 0; i < *parallel; i++ {
-			go tcpClientClientFlag(port, duration, &wgParallel, &wgFin, length)
-			wgParallel.Add(1)
-		}
-
-		wgFin.Wait()
-		fmt.Println(fmt.Sprintf("result: %v", len(result)))
+		tcpClientClientFlag(port, duration, length)
 	}
 
 }
 
-func tcpServer(port *string, wg *sync.WaitGroup, duration *int, length *int) {
+func tcpServer(port *string, wg *sync.WaitGroup, duration *int, length *int, wgFin *sync.WaitGroup) {
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("127.0.0.1:%v", *port))
 	checkError(err)
@@ -101,15 +95,16 @@ func tcpServer(port *string, wg *sync.WaitGroup, duration *int, length *int) {
 	wg.Done()
 
 	for {
+
 		conn, err := ln.Accept()
 		checkError(err)
 
-		go handleConnection(conn, duration, length)
+		go handleConnection(conn, duration, length, wgFin)
 	}
 
 }
 
-func handleConnection(conn net.Conn, duration *int, length *int) {
+func handleConnection(conn net.Conn, duration *int, length *int, wgFin *sync.WaitGroup) {
 	input := make([]byte, *length)
 
 	//fmt.Println(input)
@@ -119,7 +114,7 @@ func handleConnection(conn net.Conn, duration *int, length *int) {
 	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
 		i++
 		startTimer := time.Now()
-		_, err := conn.Write([]byte("Hello World!"))
+		_, err := conn.Write(input)
 		checkError(err)
 
 		_, err = conn.Read(input[0:])
@@ -129,6 +124,8 @@ func handleConnection(conn net.Conn, duration *int, length *int) {
 		//log.Printf("[INFO] Process time: %s", elapsed)
 		result = append(result, int(elapsed))
 	}
+
+	wgFin.Done()
 
 }
 
@@ -207,40 +204,30 @@ func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int, wgParallel
 	wgFin.Done()
 }
 
-func tcpClientClientFlag(port *string, duration *int, wgParallel *sync.WaitGroup, wgFin *sync.WaitGroup, length *int) {
+func tcpClientClientFlag(port *string, duration *int, length *int) {
+	input := make([]byte, 1024)
 
-	fmt.Println("test")
-	input := make([]byte, *length)
-	var i int
-
-	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("127.0.0.1:%v", *port))
+	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
 	checkError(err)
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
 
-	wgParallel.Done()
-	wgParallel.Wait()
-
-	go doEvery((time.Duration(*interval) * time.Second))
-	for start := time.Now(); time.Since(start) < time.Second*(time.Duration(*duration)); {
-		i++
+	for start := time.Now(); time.Since(start) < time.Second*time.Duration(10); {
 
 		startTimer := time.Now()
-		_, err = conn.Write([]byte("Hello World!"))
+		_, err = conn.Write(input)
 		checkError(err)
 
 		_, err := conn.Read(input[0:])
 		checkError(err)
 
 		elapsed = time.Since(startTimer)
-		// Append time to array instead of printing it
-		//log.Printf("[INFO] Response time: %s", elapsed)
 		result = append(result, int(elapsed))
 
 	}
 
-	wgFin.Done()
+	fmt.Println(fmt.Sprintf("result: %v", len(result)))
 
 }
 

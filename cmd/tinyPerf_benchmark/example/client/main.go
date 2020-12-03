@@ -13,7 +13,7 @@ var (
 )
 
 func main() {
-	input := make([]byte, 10000)
+	input := make([]byte, 1000000)
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
 	checkError(err)

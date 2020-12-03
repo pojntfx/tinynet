@@ -29,13 +29,13 @@ func checkError(err error) {
 }
 
 func handleConnection(conn net.Conn) {
-	var input [1000000]byte
+	var input [1024]byte
 
 	for {
 		n, err := conn.Read(input[0:])
 		checkError(err)
 
-		//fmt.Println(input[0:n])
+		fmt.Println(input[0:n])
 
 		_, err = conn.Write(input[0:n])
 		checkError(err)
