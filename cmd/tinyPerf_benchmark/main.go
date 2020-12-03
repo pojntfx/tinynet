@@ -32,7 +32,7 @@ func main() {
 
 	flag.Parse()
 
-	*length = *length * 1
+	*length = *length * 1000
 
 	fmt.Println("port:", *port)
 	fmt.Println("interval:", *interval)
