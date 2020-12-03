@@ -241,6 +241,7 @@ func tcpClientClientFlag(port *string, duration *int, wgParallel *sync.WaitGroup
 	}
 
 	wgFin.Done()
+
 }
 
 func doEvery(d time.Duration) {
