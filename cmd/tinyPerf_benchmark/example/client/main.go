@@ -13,9 +13,9 @@ var (
 )
 
 func main() {
-	input := make([]byte, 1000000)
+	input := make([]byte, 96000)
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
+	tcpAddr, err := net.ResolveTCPAddr("tcp", "192.168.178.79:8888")
 	checkError(err)
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
