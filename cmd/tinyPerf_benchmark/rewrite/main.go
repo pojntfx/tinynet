@@ -43,7 +43,7 @@ func main() {
 	}
 
 	if *client {
-		handleClientMode(length, ip, port)
+		handleClientMode(length, ip, port, interval)
 	}
 
 	fmt.Println(len(result))
@@ -93,7 +93,7 @@ func handleConnection(conn net.Conn, wg *sync.WaitGroup, length *int, interval *
 	wg.Done()
 }
 
-func handleClientMode(length *int, ip *string, port *string) {
+func handleClientMode(length *int, ip *string, port *string, interval *int) {
 	input := make([]byte, *length)
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", *ip, *port))
@@ -102,6 +102,7 @@ func handleClientMode(length *int, ip *string, port *string) {
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
 
+	go doEvery(time.Duration(*interval) * time.Second)
 	for start := time.Now(); time.Since(start) < time.Second*time.Duration(10); {
 
 		startTimer := time.Now()
