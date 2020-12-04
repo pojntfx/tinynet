@@ -10,7 +10,7 @@ import (
 func main() {
 
 	port := flag.String("p", "8888", "port to connect/listen to")
-	length := flag.Int("l", 128, "length of the buffers to send in Kb")
+	length := flag.Int("l", 128, "size of the buffer to transfer in Kb")
 	ip := flag.String("ip", "0.0.0.0", "ip to connect to")
 
 	*length = *length * 1000

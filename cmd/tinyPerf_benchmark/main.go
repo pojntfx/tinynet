@@ -16,12 +16,12 @@ var (
 
 func main() {
 
-	port := flag.String("p", "8888", "port to listen to")                                             // Done
-	interval := flag.Int("i", 1, "set interval between periodic bandwidth, jitter, ans loss reports") // Done
-	server := flag.Bool("s", false, "run in server mode")                                             // Done
-	client := flag.Bool("c", false, "run in client mode")
-	duration := flag.Int("t", 10, "time in seconds to transmit for")           // Done
-	length := flag.Int("l", 128, "length of buffers to read or write (in KB)") // Done
+	port := flag.String("p", "8888", "port to connect/listen to")
+	interval := flag.Int("i", 1, "report intervals in seconds")
+	server := flag.Bool("s", false, "run as server")
+	client := flag.Bool("c", false, "run as client")
+	duration := flag.Int("t", 10, "time to test in s")
+	length := flag.Int("l", 128, "size of the buffer to transfer in Kb")
 	ip := flag.String("ip", "0.0.0.0", "ip to connect to")
 
 	flag.Parse()
@@ -54,7 +54,7 @@ func main() {
 	if *client {
 		fmt.Println("-----------------------------------------------------")
 		fmt.Println(fmt.Sprintf("Connection to: %v:%v", *ip, *port))
-		fmt.Println(fmt.Sprintf("Packets of length %v Kb have been received for %v s", *length/1000, *duration))
+		fmt.Println(fmt.Sprintf("Packets of length %v Kb have been sent for %v s", *length/1000, *duration))
 		fmt.Println(fmt.Sprintf("Number of requests: %v", len(result)))
 		fmt.Println(fmt.Sprintf("Average transfer speed: %v Mb/s", float64(len(result)*(*length))/float64(10*1000*1000)))
 		fmt.Println("-----------------------------------------------------")
