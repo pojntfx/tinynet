@@ -27,12 +27,12 @@ func main() {
 	client := flag.Bool("c", false, "run in client mode")
 	reverse := flag.Bool("r", false, "run in reverse mode")                                  // Done
 	duration := flag.Int("t", 10, "time in seconds to transmit for")                         // Done
-	length := flag.Int("l", 1024, "length of buffers to read or write (in KB)")              // Done
+	length := flag.Int("l", 128, "length of buffers to read or write (in KB)")               // Done
 	parallel := flag.Int("P", 1, "number of simultaneous connections to make to the server") // Done
 
 	flag.Parse()
 
-	*length = *length * 1
+	*length = *length * 1000
 
 	fmt.Println("port:", *port)
 	fmt.Println("interval:", *interval)
@@ -207,7 +207,7 @@ func tcpClientClient(port *string, wg *sync.WaitGroup, duration *int, wgParallel
 func tcpClientClientFlag(port *string, duration *int, length *int) {
 	input := make([]byte, 1024)
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
+	tcpAddr, err := net.ResolveTCPAddr("tcp", "192.168.178.79:8888")
 	checkError(err)
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
@@ -233,7 +233,6 @@ func tcpClientClientFlag(port *string, duration *int, length *int) {
 
 func doEvery(d time.Duration) {
 	for x := range time.Tick(d) {
-		// Das Ergebnis ist in nanosekunden
 		fmt.Println(int(elapsed))
 		fmt.Println(elapsed)
 		fmt.Println(reflect.TypeOf(int(elapsed)))
