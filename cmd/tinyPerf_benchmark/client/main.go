@@ -13,6 +13,8 @@ func main() {
 	length := flag.Int("l", 128, "size of the buffer to transfer in Kb")
 	ip := flag.String("ip", "0.0.0.0", "ip to connect to")
 
+	flag.Parse()
+
 	*length = *length * 1000
 
 	input := make([]byte, *length)
