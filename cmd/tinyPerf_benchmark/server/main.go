@@ -13,6 +13,8 @@ func main() {
 	length := flag.Int("l", 128, "size of the buffer to trasfer in Kb")
 	ip := flag.String("ip", "0.0.0.0", "ip to connect to")
 
+	flag.Parse()
+
 	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", *ip, *port))
 	checkError(err)
 
