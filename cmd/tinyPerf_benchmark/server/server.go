@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -8,7 +9,11 @@ import (
 
 func main() {
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("0.0.0.0:8888"))
+	port := flag.String("p", "8888", "port to connect/listen to")
+	length := flag.Int("l", 128, "length of the buffer to transfer")
+	ip := flag.String("ip", "0.0.0.0", "ip to connect to")
+
+	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%v", *ip, *port))
 	checkError(err)
 
 	ln, err := net.ListenTCP("tcp", tcpAddr)
@@ -18,7 +23,7 @@ func main() {
 		conn, err := ln.Accept()
 		checkError(err)
 
-		go handleConnection(conn)
+		go handleConnection(conn, length)
 	}
 }
 
@@ -28,8 +33,8 @@ func checkError(err error) {
 	}
 }
 
-func handleConnection(conn net.Conn) {
-	var input [1024]byte
+func handleConnection(conn net.Conn, length *int) {
+	input := make([]byte, *length)
 
 	for {
 		n, err := conn.Read(input[0:])
