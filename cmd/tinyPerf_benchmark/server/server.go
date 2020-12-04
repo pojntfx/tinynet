@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("127.0.0.1:8888"))
+	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("0.0.0.0:8888"))
 	checkError(err)
 
 	ln, err := net.ListenTCP("tcp", tcpAddr)
@@ -34,8 +34,6 @@ func handleConnection(conn net.Conn) {
 	for {
 		n, err := conn.Read(input[0:])
 		checkError(err)
-
-		fmt.Println(input[0:n])
 
 		_, err = conn.Write(input[0:n])
 		checkError(err)
