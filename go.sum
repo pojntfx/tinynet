@@ -1,4 +1,4 @@
-github.com/pojntfx/unisockets v0.0.0-20201130224707-7c39aa9d2da7 h1:rvnAjFq4k9Su9ehW7ruBP/EDmKaM0tPL9K+prz+Ayfw=
-github.com/pojntfx/unisockets v0.0.0-20201130224707-7c39aa9d2da7/go.mod h1:CEeZMjYln6NAZz+QJbAr4KiVxmtNqx2FgNVmBdil9lU=
+github.com/pojntfx/unisockets v0.0.5 h1:6wYoNt23IN9PEya+LGHevh17g/ex25c5+gF9hC275MU=
+github.com/pojntfx/unisockets v0.0.5/go.mod h1:CEeZMjYln6NAZz+QJbAr4KiVxmtNqx2FgNVmBdil9lU=
 github.com/valyala/fastjson v1.6.3 h1:tAKFnnwmeMGPbwJ7IwxcTPCNr3uIzoIj3/Fh90ra4xc=
 github.com/valyala/fastjson v1.6.3/go.mod h1:CLCAqky6SMuOcxStkYQvblddUtoRxhYMGLrsQns1aXY=
