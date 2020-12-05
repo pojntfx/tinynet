@@ -4,9 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net"
 	"sync"
 	"time"
+
+	net "github.com/pojntfx/tinynet/pkg/tinynet"
 )
 
 var (
@@ -22,7 +23,7 @@ func main() {
 	client := flag.Bool("c", false, "run as client")
 	duration := flag.Int("t", 10, "time to test in s")
 	length := flag.Int("l", 128, "size of the buffer to transfer in Kb")
-	ip := flag.String("ip", "0.0.0.0", "ip to connect to")
+	ip := flag.String("ip", "127.0.0.1", "ip to connect to")
 
 	flag.Parse()
 
