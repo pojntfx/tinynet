@@ -1,3 +1,6 @@
-FROM node
+FROM ubuntu:20.10
 
-RUN npm i -g @pojntfx/unisockets
+RUN apt update
+RUN apt install -y npm
+
+RUN npm i -g @pojntfx/unisockets --unsafe-perm
