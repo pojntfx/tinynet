@@ -28,7 +28,9 @@ build: \
 	build-softmax-client-native-posix-go \
     build-softmax-client-native-posix-tinygo \
     build-softmax-client-wasm-jssi-go \
-    build-softmax-client-wasm-wasi-tinygo
+    build-softmax-client-wasm-wasi-tinygo \
+	build-tinyperf-native-posix-go \
+    build-tinyperf-wasm-jssi-go
 
 build-wasi-sdk:
 	@docker build -t pojntfx/wasi-sdk -f Dockerfile.wasi-sdk .
@@ -95,6 +97,11 @@ build-softmax-client-wasm-wasi-tinygo: build-wasi-sdk
 	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DBERKELEY_SOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/softmax_client_wasi_original.wasm ./cmd/softmax_client/main.go'
 	@docker run -v ${PWD}:/src:z pojntfx/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/softmax_client_wasi_original.wasm -o out/tinygo/softmax_client_wasi.wasm'
 
+build-tinyperf-native-posix-go:
+	@docker run -v ${PWD}:/src:z golang sh -c 'cd /src && go build -o out/go/tinyperf ./cmd/tinyperf/main.go'
+build-tinyperf-wasm-jssi-go:
+	@docker run -v ${PWD}:/src:z -e GOOS=js -e GOARCH=wasm golang sh -c 'cd /src && go build -o out/go/tinyperf.wasm ./cmd/tinyperf/main.go'
+
 # Clean
 clean: \
     clean-net-server-native-posix-go \
@@ -120,7 +127,9 @@ clean: \
 	clean-softmax-client-native-posix-go \
     clean-softmax-client-native-posix-tinygo \
     clean-softmax-client-wasm-jssi-go \
-    clean-softmax-client-wasm-wasi-tinygo
+    clean-softmax-client-wasm-wasi-tinygo \
+	clean-tinyperf-native-posix-go \
+    clean-tinyperf-wasm-jssi-go
 
 clean-net-server-native-posix-go:
 	@rm -f out/go/net_echo_server
@@ -182,6 +191,11 @@ clean-softmax-client-wasm-wasi-tinygo:
 	@rm -f out/tinygo/softmax_client_wasi_original.wasm
 	@rm -f out/tinygo/softmax_client_wasi.wasm
 
+clean-tinyperf-native-posix-go:
+	@rm -f out/go/tinyperf
+clean-tinyperf-wasm-jssi-go:
+	@rm -f out/go/tinyperf.wasm
+
 # Run
 run: \
 	run-signaling-server \
@@ -208,7 +222,9 @@ run: \
     run-softmax-client-native-posix-go \
     run-softmax-client-native-posix-tinygo \
 	run-softmax-client-wasm-jssi-go \
-	run-softmax-client-wasm-wasi-tinygo
+	run-softmax-client-wasm-wasi-tinygo \
+	run-tinyperf-native-posix-go \
+	run-tinyperf-wasm-jssi-go
 
 run-signaling-server: build-unisockets-runner
 	@docker run --net host -v ${PWD}:/src:z pojntfx/unisockets-runner sh -c 'cd /src && unisockets_runner --runSignalingServer true'
@@ -254,9 +270,9 @@ run-softmax-server-native-posix-go:
 run-softmax-server-native-posix-tinygo:
 	@./out/tinygo/softmax_server
 run-softmax-server-wasm-jssi-go: build-unisockets-runner
-	@docker run --net host -v ${PWD}:/src:z pojntfx/unisockets-runner sh -c 'cd /src && unisockets_runner --runBinary true --useGo true --useJSSI true --binaryPath ./out/go/softmax_echo_server.wasm'
+	@docker run --net host -v ${PWD}:/src:z pojntfx/unisockets-runner sh -c 'cd /src && unisockets_runner --runBinary true --useGo true --useJSSI true --binaryPath ./out/go/softmax_server.wasm'
 run-softmax-server-wasm-wasi-tinygo: build-unisockets-runner
-	@docker run --net host -v ${PWD}:/src:z pojntfx/unisockets-runner sh -c 'cd /src && unisockets_runner --runBinary true --useTinyGo true --useWASI true --binaryPath ./out/tinygo/softmax_echo_server_wasi.wasm'
+	@docker run --net host -v ${PWD}:/src:z pojntfx/unisockets-runner sh -c 'cd /src && unisockets_runner --runBinary true --useTinyGo true --useWASI true --binaryPath ./out/tinygo/softmax_server_wasi.wasm'
 
 run-softmax-client-native-posix-go:
 	@./out/go/softmax_client
@@ -266,3 +282,8 @@ run-softmax-client-wasm-jssi-go: build-unisockets-runner
 	@docker run --net host -v ${PWD}:/src:z pojntfx/unisockets-runner sh -c 'cd /src && unisockets_runner --runBinary true --useGo true --useJSSI true --binaryPath ./out/go/softmax_echo_client.wasm'
 run-softmax-client-wasm-wasi-tinygo: build-unisockets-runner
 	@docker run --net host -v ${PWD}:/src:z pojntfx/unisockets-runner sh -c 'cd /src && unisockets_runner --runBinary true --useTinyGo true --useWASI true --binaryPath ./out/tinygo/softmax_echo_client_wasi.wasm'
+
+run-tinyperf-native-posix-go:
+	@./out/go/tinyperf $(ARGS)
+run-tinyperf-wasm-jssi-go: build-unisockets-runner
+	@docker run --net host -v ${PWD}:/src:z pojntfx/unisockets-runner sh -c 'cd /src && unisockets_runner --runBinary true --useGo true --useJSSI true --binaryPath ./out/go/tinyperf.wasm' $(ARGS)
