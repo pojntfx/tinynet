@@ -3,7 +3,6 @@ all: build
 
 # Build
 build: \
-    build-wasi-sdk \
     build-unisockets-runner \
     build-net-server-native-posix-go \
     build-net-server-native-posix-tinygo \
@@ -32,8 +31,6 @@ build: \
 	build-tinyperf-native-posix-go \
     build-tinyperf-wasm-jssi-go
 
-build-wasi-sdk:
-	@docker build -t pojntfx/wasi-sdk -f Dockerfile.wasi-sdk .
 build-unisockets-runner:
 	@docker build -t pojntfx/unisockets-runner -f Dockerfile.unisockets-runner .
 
@@ -43,8 +40,8 @@ build-net-server-native-posix-tinygo:
 	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -o out/tinygo/net_echo_server ./cmd/net_echo_server/main.go'
 build-net-server-wasm-jssi-go:
 	@docker run -v ${PWD}:/src:z -e GOOS=js -e GOARCH=wasm golang sh -c 'cd /src && go build -o out/go/net_echo_server.wasm ./cmd/net_echo_server/main.go'
-build-net-server-wasm-wasi-tinygo: build-wasi-sdk
-	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DBERKELEY_SOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/net_echo_server_wasi_original.wasm ./cmd/net_echo_server/main.go'
+build-net-server-wasm-wasi-tinygo:
+	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DUNISOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/net_echo_server_wasi_original.wasm ./cmd/net_echo_server/main.go'
 	@docker run -v ${PWD}:/src:z pojntfx/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/net_echo_server_wasi_original.wasm -o out/tinygo/net_echo_server_wasi.wasm'
 
 build-net-client-native-posix-go:
@@ -53,8 +50,8 @@ build-net-client-native-posix-tinygo:
 	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -o out/tinygo/net_echo_client ./cmd/net_echo_client/main.go'
 build-net-client-wasm-jssi-go:
 	@docker run -v ${PWD}:/src:z -e GOOS=js -e GOARCH=wasm golang sh -c 'cd /src && go build -o out/go/net_echo_client.wasm ./cmd/net_echo_client/main.go'
-build-net-client-wasm-wasi-tinygo: build-wasi-sdk
-	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DBERKELEY_SOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/net_echo_client_wasi_original.wasm ./cmd/net_echo_client/main.go'
+build-net-client-wasm-wasi-tinygo:
+	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DUNISOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/net_echo_client_wasi_original.wasm ./cmd/net_echo_client/main.go'
 	@docker run -v ${PWD}:/src:z pojntfx/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/net_echo_client_wasi_original.wasm -o out/tinygo/net_echo_client_wasi.wasm'
 
 build-tcp-server-native-posix-go:
@@ -63,8 +60,8 @@ build-tcp-server-native-posix-tinygo:
 	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -o out/tinygo/tcp_echo_server ./cmd/tcp_echo_server/main.go'
 build-tcp-server-wasm-jssi-go:
 	@docker run -v ${PWD}:/src:z -e GOOS=js -e GOARCH=wasm golang sh -c 'cd /src && go build -o out/go/tcp_echo_server.wasm ./cmd/tcp_echo_server/main.go'
-build-tcp-server-wasm-wasi-tinygo: build-wasi-sdk
-	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DBERKELEY_SOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/tcp_echo_server_wasi_original.wasm ./cmd/tcp_echo_server/main.go'
+build-tcp-server-wasm-wasi-tinygo:
+	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DUNISOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/tcp_echo_server_wasi_original.wasm ./cmd/tcp_echo_server/main.go'
 	@docker run -v ${PWD}:/src:z pojntfx/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/tcp_echo_server_wasi_original.wasm -o out/tinygo/tcp_echo_server_wasi.wasm'
 
 build-tcp-client-native-posix-go:
@@ -73,8 +70,8 @@ build-tcp-client-native-posix-tinygo:
 	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -o out/tinygo/tcp_echo_client ./cmd/tcp_echo_client/main.go'
 build-tcp-client-wasm-jssi-go:
 	@docker run -v ${PWD}:/src:z -e GOOS=js -e GOARCH=wasm golang sh -c 'cd /src && go build -o out/go/tcp_echo_client.wasm ./cmd/tcp_echo_client/main.go'
-build-tcp-client-wasm-wasi-tinygo: build-wasi-sdk
-	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DBERKELEY_SOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/tcp_echo_client_wasi_original.wasm ./cmd/tcp_echo_client/main.go'
+build-tcp-client-wasm-wasi-tinygo:
+	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DUNISOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/tcp_echo_client_wasi_original.wasm ./cmd/tcp_echo_client/main.go'
 	@docker run -v ${PWD}:/src:z pojntfx/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/tcp_echo_client_wasi_original.wasm -o out/tinygo/tcp_echo_client_wasi.wasm'
 
 build-softmax-server-native-posix-go:
@@ -83,8 +80,8 @@ build-softmax-server-native-posix-tinygo:
 	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -o out/tinygo/softmax_server ./cmd/softmax_server/main.go'
 build-softmax-server-wasm-jssi-go:
 	@docker run -v ${PWD}:/src:z -e GOOS=js -e GOARCH=wasm golang sh -c 'cd /src && go build -o out/go/softmax_server.wasm ./cmd/softmax_server/main.go'
-build-softmax-server-wasm-wasi-tinygo: build-wasi-sdk
-	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DBERKELEY_SOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/softmax_server_wasi_original.wasm ./cmd/softmax_server/main.go'
+build-softmax-server-wasm-wasi-tinygo:
+	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DUNISOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/softmax_server_wasi_original.wasm ./cmd/softmax_server/main.go'
 	@docker run -v ${PWD}:/src:z pojntfx/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/softmax_server_wasi_original.wasm -o out/tinygo/softmax_server_wasi.wasm'
 
 build-softmax-client-native-posix-go:
@@ -93,8 +90,8 @@ build-softmax-client-native-posix-tinygo:
 	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -o out/tinygo/softmax_client ./cmd/softmax_client/main.go'
 build-softmax-client-wasm-jssi-go:
 	@docker run -v ${PWD}:/src:z -e GOOS=js -e GOARCH=wasm golang sh -c 'cd /src && go build -o out/go/softmax_client.wasm ./cmd/softmax_client/main.go'
-build-softmax-client-wasm-wasi-tinygo: build-wasi-sdk
-	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DBERKELEY_SOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/softmax_client_wasi_original.wasm ./cmd/softmax_client/main.go'
+build-softmax-client-wasm-wasi-tinygo:
+	@docker run -v ${PWD}:/src:z tinygo/tinygo sh -c 'cd /src && mkdir -p out/tinygo && tinygo build -heap-size 20M -cflags "-DUNISOCKETS_WITH_CUSTOM_ARPA_INET" -target wasi -o out/tinygo/softmax_client_wasi_original.wasm ./cmd/softmax_client/main.go'
 	@docker run -v ${PWD}:/src:z pojntfx/wasi-sdk sh -c 'cd /src && wasm-opt --asyncify -O out/tinygo/softmax_client_wasi_original.wasm -o out/tinygo/softmax_client_wasi.wasm'
 
 build-tinyperf-native-posix-go:
