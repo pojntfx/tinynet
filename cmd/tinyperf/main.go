@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	net "github.com/pojntfx/tinynet/pkg/tinynet"
+	net "github.com/alphahorizonio/tinynet/pkg/tinynet"
 )
 
 var (

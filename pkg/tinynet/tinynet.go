@@ -8,7 +8,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/pojntfx/unisockets/pkg/unisockets"
+	"github.com/alphahorizonio/unisockets/pkg/unisockets"
 )
 
 type IP []byte
