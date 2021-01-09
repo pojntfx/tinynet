@@ -5,7 +5,7 @@ import (
 	"log"
 	"math"
 
-	"github.com/pojntfx/tinynet/pkg/tinynet"
+	"github.com/alphahorizonio/tinynet/pkg/tinynet"
 	"github.com/valyala/fastjson"
 )
 

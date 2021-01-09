@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pojntfx/tinynet/pkg/tinynet"
+	"github.com/alphahorizonio/tinynet/pkg/tinynet"
 )
 
 var (
