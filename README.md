@@ -5,6 +5,7 @@ A `net` implementation for Go and TinyGo based on [unisockets](https://github.co
 ![make CI](https://github.com/alphahorizonio/tinynet/workflows/make%20CI/badge.svg)
 ![Mirror](https://github.com/alphahorizonio/tinynet/workflows/Mirror/badge.svg)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/alphahorizonio/tinynet)](https://pkg.go.dev/github.com/alphahorizonio/tinynet)
+[![Part of webnetes](https://img.shields.io/badge/Part%20of-webnetes-black)](https://webnetes.dev/)
 
 ## Overview
 
