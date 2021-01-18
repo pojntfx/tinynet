@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
 
 	"github.com/alphahorizonio/unisockets/pkg/unisockets"
 )
@@ -211,7 +210,7 @@ type TCPConn struct {
 }
 
 func (c TCPConn) Read(b []byte) (int, error) {
-	readMsg := make([]byte, unsafe.Sizeof(b))
+	readMsg := make([]byte, len(b))
 
 	n, err := unisockets.Recv(c.fd, &readMsg, uint32(len(b)), 0)
 	if n == 0 {
